@@ -1,0 +1,1 @@
+['surprise', 'sadness', 'joy', 'disgust', 'fear', 'anger']
