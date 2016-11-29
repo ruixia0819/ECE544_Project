@@ -1,7 +1,7 @@
 import os
-import nltk
+# import nltk
 from nltk.tokenize import TweetTokenizer
-import re
+# import re
 
 
 class Sentences(object):
@@ -55,11 +55,13 @@ class Sentences(object):
 
                     if self.matlabel:
                         raw_label = self.label_dict[raw_label]
+
                     yield text, raw_label
                 else:
                     if not self.split_line:
                         text = ori_line
                     # print(data)
+
                     yield text
 
 if __name__ == "__main__":
