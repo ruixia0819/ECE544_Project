@@ -8,6 +8,7 @@ def __pre_process__(text):
     text = re.sub(r'@\w* ', '', text)
     text = re.sub(r'&\w*;', '', text)
     text = re.sub(r'&#\w*;', '', text)
+    # text = re.sub(r'@', '', text)
 
     return text
 
@@ -77,17 +78,33 @@ def check_abuse(sentences):
             print(data)
 
 
+def find_max_length(sentences):
+    max_length = 0
+    for line in sentences:
+        if len(line) > max_length:
+            max_length = len(line)
+
+    return max_length
+
+
 if __name__ == "__main__":
     # preprocess data
+    #
     sentences = Sentences(dirname='./data_set/raw/')
     data_preprocess(sentences)
 
     # generate label list
+    #
     sentences = Sentences(dirname='./data_set/full/', label=True)
     label_count(sentences)
 
     # check there are labels that are not expected to have
+    #
     check_abuse(sentences)
 
     # split data into train, eval and test
+    #
     data_split(sentences)
+
+    sentences = Sentences(dirname='./data_set/full/', split_line=True, split_method = 'Twitter', label=False)
+    print(find_max_length(sentences))

@@ -13,7 +13,7 @@ sentences = Sentences(dirname='./data_set/full', split_line=True, split_method='
 print(next(sentences.__iter__()))
 
 # train the model
-model = gensim.models.Word2Vec(sentences, size=200, min_count=5, workers=10)
+model = gensim.models.Word2Vec(sentences, size=100, min_count=1, workers=10)
 
 # evaluate model
 # model.accuracy('./Affection analysis database/test/Jan9-2012-tweets-clean.txt')

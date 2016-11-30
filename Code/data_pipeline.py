@@ -2,10 +2,11 @@ import os
 # import nltk
 from nltk.tokenize import TweetTokenizer
 # import re
+import gensim
 
 
 class Sentences(object):
-    def __init__(self, dirname, parser=None, split_line=False, split_method='', label=False, matlabel=False):
+    def __init__(self, dirname, parser=None, split_line=False, split_method='', label=False, matlabel=False, w2v=False):
         self.dirname = dirname
         self.parser = parser
         self.split_line = split_line
@@ -18,6 +19,13 @@ class Sentences(object):
                                         'disgust': [0,0,0,1,0,0],
                                         'fear': [0,0,0,0,1,0],
                                         'anger': [0,0,0,0,0,1]}
+        self.w2v = w2v
+        if self.w2v:
+           self.model = gensim.models.Word2Vec.load('models/model')
+
+
+    def __w2v__(self, text):
+        return self.model[text]
 
 
     def __iter__(self):
@@ -47,24 +55,21 @@ class Sentences(object):
                     else:
                         text = text.split(self.parser)
 
+                if not self.split_line:
+                    text = ori_line
+
+                if self.w2v:
+                    text = list(map(self.__w2v__, text))
 
                 if self.label:
-                    # print(data)
-                    if not self.split_line:
-                        text = ori_line
-
                     if self.matlabel:
                         raw_label = self.label_dict[raw_label]
 
                     yield text, raw_label
                 else:
-                    if not self.split_line:
-                        text = ori_line
-                    # print(data)
-
                     yield text
 
 if __name__ == "__main__":
-    sentences = Sentences(dirname="./data_set/raw/", split_line=True, label=True, matlabel=True)
+    sentences = Sentences(dirname="./data_set/full", split_line=True, split_method='Twitter', w2v=True, label=True, matlabel=True)
     for line, label in sentences:
-        print(label)
+        print(line)
