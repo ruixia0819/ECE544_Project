@@ -8,6 +8,7 @@ def __pre_process__(text):
     text = re.sub(r'@\w* ', '', text)
     text = re.sub(r'&\w*;', '', text)
     text = re.sub(r'&#\w*;', '', text)
+    # text = re.sub(r'@', '', text)
 
     return text
 
@@ -46,15 +47,15 @@ def data_split(sentences):
                 os.mkdir(path)
             with open('data_set/train/train.txt', 'a') as f:
                 f.write(line)
-                f.write('\n')
+                # f.write('\n')
         elif count / line_count < 0.8:
             with open('data_set/eval/eval.txt', 'a') as f:
                 f.write(line)
-                f.write('\n')
+                # f.write('\n')
         else:
             with open('data_set/test/test.txt', 'a') as f:
                 f.write(line)
-                f.write('\n')
+                # f.write('\n')
 
         count += 1
 
@@ -77,17 +78,36 @@ def check_abuse(sentences):
             print(data)
 
 
+def find_max_length(sentences):
+    max_length = 0
+    for line in sentences:
+        if len(line) > max_length:
+            max_length = len(line)
+
+    return max_length
+
+
 if __name__ == "__main__":
     # preprocess data
+    #
     sentences = Sentences(dirname='./data_set/raw/')
     data_preprocess(sentences)
 
     # generate label list
+    #
     sentences = Sentences(dirname='./data_set/full/', label=True)
     label_count(sentences)
 
     # check there are labels that are not expected to have
+    #
     check_abuse(sentences)
 
     # split data into train, eval and test
+    #
     data_split(sentences)
+
+    sentences = Sentences(dirname='./data_set/full/', split_line=True, split_method = 'Twitter', label=False)
+    print(find_max_length(sentences))
+
+    # sentences = Sentences(dirname='./data_set/full/', label=True, split_line=True, split_method='Twitter')
+    # data_split(sentences, 'vector')
