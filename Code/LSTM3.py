@@ -95,7 +95,8 @@ with tf.Session() as sess:
 
     print('start')
     while step * batch_size < training_iters:
-        batch_x, batch_y = train_data_set.next_batch_stupid(batch_size)
+        # batch_x, batch_y = train_data_set.next_batch_stupid(batch_size)
+        batch_x, batch_y = train_data_set.next_batch(batch_size)
 
         if step % 1000000000 == 1:
             print(batch_x.shape)
@@ -121,11 +122,11 @@ with tf.Session() as sess:
     print("Optimization Finished!")
 
 
-    test_data_set = DataSet(path='./data_set/test')
+    # test_data_set = DataSet(path='./data_set/test')
 
     # Calculate accuracy for 128 mnist test images
-    # test_len = 128
-    test_data, test_label = test_data_set.all_data()
+    test_len = 500
+    test_data, test_label = test_data_set.next_batch_stupid(test_len)
     # test_data, test_label = mnist.test.images.reshape((-1, 60, 100))
     # test_data = test_data[:, ::4, ::4]
     # test_data = test_data[:test_len]
