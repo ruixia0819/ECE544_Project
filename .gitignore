@@ -19,3 +19,7 @@ Code/.idea/misc.xml
 *.pyc
 
 Code/.idea/workspace.xml
+
+*.pyc
+
+Code/__pycache__/data_pipeline.cpython-35.pyc

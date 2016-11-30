@@ -73,9 +73,9 @@ class Sentences(object):
 
                 if self.tensor_out:
                     temp = np.array(text)
-                    text = np.zeros((self.max_length, 100))
-                    text[:len(temp), :] = temp
-                    raw_label = np.array(raw_label)
+                    text = np.zeros((1, self.max_length, 100))
+                    text[0, :len(temp), :] = temp
+                    raw_label = np.array(raw_label).reshape((1, 6))
 
                 if self.label:
                     yield text, raw_label

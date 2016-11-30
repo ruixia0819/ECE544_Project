@@ -27,7 +27,8 @@ class DataSet(object):
         #
         # batch_text, batch_label = tf.train.batch(list(a), batch_size)
 
-        return batch_text, batch_label
+        return batch_text.eval(), batch_label.eval()
+        # return batch_text, batch_label
 
 
     def all_data(self):
@@ -55,5 +56,7 @@ if __name__ == '__main__':
 
             f.write(str(i) + '~~~~~~')
             f.write('\n')
+
+            print('shit')
 
         i += 1
