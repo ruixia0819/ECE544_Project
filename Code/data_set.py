@@ -4,9 +4,9 @@ import tensorflow as tf
 
 
 class DataSet(object):
-    def __init__(self, path='./data_set/train'):
-        self.sentences = Sentences(path, split_line=True, tensor_out=True, max_length=140, split_method="Twitter", w2v=True, label=True, matlabel=True)
-
+    def __init__(self, path='./data_set/train', max_length=140):
+        self.max_length = max_length
+        self.sentences = Sentences(path, max_length=max_length, split_line=True, tensor_out=True, split_method="Twitter", w2v=True, label=True, matlabel=True)
         self.gen = self.sentences.__iter__()
 
     def next_batch(self, batch_size=100):
@@ -30,16 +30,28 @@ class DataSet(object):
         return batch_text.eval(), batch_label.eval()
         # return batch_text, batch_label
 
-
     def all_data(self):
-        text = numpy.zeros((1, 140, 100))
-        label = numpy.zeros((1, 6))
+        text = np.zeros((1, self.max_length, 100))
+        label = np.zeros((1, 6))
 
         for r_text, r_label in self.sentences:
             text = np.append(text, r_text)
             label = np.append(label, r_label)
 
         return np.delete(text, 0, axis=0), np.delete(label, 0, axis=0)
+
+    def next_batch_stupid(self, batch_size):
+        batch_x, batch_y = next(self.gen)
+        for i in range(batch_size - 1):
+            try:
+                new_x, new_y = next(self.gen)
+            except StopIteration as e:
+                self.gen = self.sentences.__iter__()
+                new_x, new_y = next(self.gen)
+            batch_x = np.append(batch_x, new_x, axis=0)
+            batch_y = np.append(batch_y, new_y, axis=0)
+
+        return batch_x, batch_y
 
 
 if __name__ == '__main__':

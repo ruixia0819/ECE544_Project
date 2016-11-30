@@ -3,18 +3,20 @@ from __future__ import print_function
 import tensorflow as tf
 from tensorflow.python.ops import rnn, rnn_cell
 import numpy as np
+from data_set import DataSet
 
 # Import data
 
 # from tensorflow.examples.tutorials.mnist import input_data
 # mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
-from data_pipeline import Sentences
+# from data_pipeline import Sentences
 # from data_set import DataSet
-sentences = Sentences('./data_set/train', split_line=True, tensor_out=True, max_length=60, split_method="Twitter", w2v=True,
-                           label=True, matlabel=True)
+# sentences = Sentences('./data_set/train', split_line=True, tensor_out=True, max_length=60, split_method="Twitter", w2v=True, label=True, matlabel=True)
 
-
+train_data_set = DataSet(path='./data_set/train', max_length=60)
+eval_data_set = DataSet(path='./data_set/eval', max_length=60)
+test_data_set = DataSet(path='./data_set/test', max_length=60)
 
 # Parameters
 learning_rate = 0.0001
@@ -23,12 +25,12 @@ batch_size = 128
 display_step = 5
 
 # Network Parameters
-n_input = 100# MNIST data input (img shape: 28*28)
-n_steps = 60 # timesteps
-n_hidden = 100 # hidden layer num of features
-n_classes = 6 # MNIST total classes (0-9 digits)
+n_input = 100  # MNIST data input (img shape: 28*28)
+n_steps = 60  # timesteps
+n_hidden = 150  # hidden layer num of features
+n_classes = 6  # MNIST total classes (0-9 digits)
 
-# tf Graph inputx
+# tf Graph input
 x = tf.placeholder("float", [None, n_steps, n_input])
 y = tf.placeholder("float", [None, n_classes])
 
@@ -87,21 +89,13 @@ with tf.Session() as sess:
     step = 1
     # Keep training until reach max iterations
 
-    gen = sentences.__iter__()
+    # gen = sentences.__iter__()
 
 
 
     print('start')
     while step * batch_size < training_iters:
-        batch_x, batch_y = next(gen)
-        for i in range(batch_size - 1):
-            try:
-                new_x, new_y = next(gen)
-            except StopIteration as e:
-                gen = sentences.__iter__()
-                new_x, new_y = next(gen)
-            batch_x = np.append(batch_x, new_x, axis=0)
-            batch_y = np.append(batch_y, new_y, axis=0)
+        batch_x, batch_y = train_data_set.next_batch_stupid(batch_size)
 
         if step % 1000000000 == 1:
             print(batch_x.shape)
