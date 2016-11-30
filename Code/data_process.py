@@ -47,15 +47,15 @@ def data_split(sentences):
                 os.mkdir(path)
             with open('data_set/train/train.txt', 'a') as f:
                 f.write(line)
-                f.write('\n')
+                # f.write('\n')
         elif count / line_count < 0.8:
             with open('data_set/eval/eval.txt', 'a') as f:
                 f.write(line)
-                f.write('\n')
+                # f.write('\n')
         else:
             with open('data_set/test/test.txt', 'a') as f:
                 f.write(line)
-                f.write('\n')
+                # f.write('\n')
 
         count += 1
 
@@ -108,3 +108,6 @@ if __name__ == "__main__":
 
     sentences = Sentences(dirname='./data_set/full/', split_line=True, split_method = 'Twitter', label=False)
     print(find_max_length(sentences))
+
+    # sentences = Sentences(dirname='./data_set/full/', label=True, split_line=True, split_method='Twitter')
+    # data_split(sentences, 'vector')

@@ -10,7 +10,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 # load sentences to varibables
 sentences = Sentences(dirname='./data_set/full', split_line=True, split_method='Twitter')
-print(next(sentences.__iter__()))
+# print(next(sentences.__iter__()))
 
 # train the model
 model = gensim.models.Word2Vec(sentences, size=100, min_count=1, workers=10)
