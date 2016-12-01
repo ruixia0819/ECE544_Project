@@ -1,13 +1,13 @@
 import os
 # import nltk
 from nltk.tokenize import TweetTokenizer
-# import re
+import re
 import gensim
 import numpy as np
 
 
 class Sentences(object):
-    def __init__(self, dirname, parser=None, split_line=False, split_method='', label=False, matlabel=False, w2v=False, tensor_out=False, max_length=140):
+    def __init__(self, dirname, parser=None, split_line=False, split_method='', label=False, matlabel=False, w2v=False, tensor_out=False, max_length=140, stop_word=False):
         self.dirname = dirname
         self.parser = parser
         self.split_line = split_line
@@ -17,13 +17,14 @@ class Sentences(object):
         self.w2v = w2v
         self.tensor_out = tensor_out
         self.max_length = max_length
+        self.stop_word = stop_word
 
-        self.label_dict = label_dict = {'surprise': [1, 0, 0, 0, 0, 0],
-                                        'sadness': [0, 1, 0, 0, 0, 0],
-                                        'joy': [0, 0, 1, 0, 0, 0],
-                                        'disgust': [0, 0, 0, 1, 0, 0],
-                                        'fear': [0, 0, 0, 0, 1, 0],
-                                        'anger': [0, 0, 0, 0, 0, 1]}
+        self.label_dict = {'surprise': [1, 0, 0, 0, 0, 0],
+                           'sadness': [0, 1, 0, 0, 0, 0],
+                           'joy': [0, 0, 1, 0, 0, 0],
+                           'disgust': [0, 0, 0, 1, 0, 0],
+                           'fear': [0, 0, 0, 0, 1, 0],
+                           'anger': [0, 0, 0, 0, 0, 1]}
 
         if self.w2v:
            self.model = gensim.models.Word2Vec.load('models/model')
@@ -65,6 +66,14 @@ class Sentences(object):
                 if not self.split_line:
                     text = ori_line
 
+                if self.stop_word:
+                    # text = re.sub(r'\bI\b', '', text)
+                    # text = re.sub(r'\bi\b', '', text)
+                    text = re.sub(r'\ba\b', '', text)
+                    text = re.sub(r'#\w*', '', text)
+                    text = re.sub(r'\d*', '', text)
+
+
                 if self.w2v:
                     text = list(map(self.__w2v__, text))
 
@@ -83,7 +92,7 @@ class Sentences(object):
                     yield text
 
 if __name__ == "__main__":
-    sentences = Sentences(dirname="./data_set/train", split_line=True, split_method='Twitter', w2v=True, label=True, matlabel=True)
+    sentences = Sentences(dirname="./data_set/train", split_line=False, split_method='Twitter', w2v=False, label=True, matlabel=True, stop_word=True)
     for line, label in sentences:
-        # print(line)
-        pass
+        print(line)
+        # pass

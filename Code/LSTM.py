@@ -3,31 +3,35 @@ from __future__ import print_function
 import tensorflow as tf
 from tensorflow.python.ops import rnn, rnn_cell
 import numpy as np
+from dataset import DataSet
 
 # Import data
 
 # from tensorflow.examples.tutorials.mnist import input_data
 # mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
-from data_set import DataSet
-train_data_set = DataSet(path='./data_set/train')
-# eval_data_set = DataSet(path='./data_set/eval')
-# test_data_set = DataSet(path='./data_set/test')
+# from data_pipeline import Sentences
+# from data_set import DataSet
+# sentences = Sentences('./data_set/train', split_line=True, tensor_out=True, max_length=60, split_method="Twitter", w2v=True, label=True, matlabel=True)
 
+train_data_set = DataSet(path='./data_set/train', max_length=60)
+eval_data_set = DataSet(path='./data_set/eval', max_length=60)
+test_data_set = DataSet(path='./data_set/test', max_length=60)
 
 # Parameters
-learning_rate = 0.001
+learning_rate = 0.00001
 training_iters = 100000
+# training_iters = 1000
 batch_size = 128
 display_step = 5
 
 # Network Parameters
-n_input = 100# MNIST data input (img shape: 28*28)
-n_steps = 140 # timesteps
-n_hidden = 100 # hidden layer num of features
-n_classes = 6 # MNIST total classes (0-9 digits)
+n_input = 200  # MNIST data input (img shape: 28*28)
+n_steps = 30  # timesteps
+n_hidden = 150  # hidden layer num of features
+n_classes = 6  # MNIST total classes (0-9 digits)
 
-# tf Graph inputx
+# tf Graph input
 x = tf.placeholder("float", [None, n_steps, n_input])
 y = tf.placeholder("float", [None, n_classes])
 
@@ -81,20 +85,25 @@ Accuracy_=[]
 iteration=[]
 
 
-with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
+with tf.Session() as sess:
     sess.run(init)
     step = 1
     # Keep training until reach max iterations
 
+    # gen = sentences.__iter__()
+
+
+
     print('start')
     while step * batch_size < training_iters:
-        with tf.device('/cpu:0'):
-            batch_x, batch_y = train_data_set.next_batch(batch_size)
+        batch_x, batch_y = train_data_set.next_batch_stupid(batch_size)
+        # batch_x, batch_y = train_data_set.next_batch(batch_size)
+
         if step % 1000000000 == 1:
             print(batch_x.shape)
         # Reshape data to get 28 seq of 28 elements
-        # batch_x = batch_x.reshape((batch_size, 140, 100))
-        # batch_x = batch_x.reshape((batch_size, n_steps, n_input))
+        # batch_x = batch_x.reshape((batch_size, 60, 100))
+        batch_x = batch_x.reshape((batch_size, n_steps, n_input))
 
         # Run optimization op (backprop)
         sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
@@ -114,15 +123,15 @@ with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
     print("Optimization Finished!")
 
 
-    test_data_set = DataSet(path='./data_set/test')
+    # test_data_set = DataSet(path='./data_set/test')
 
     # Calculate accuracy for 128 mnist test images
-    # test_len = 128
-    test_data, test_label = test_data_set.all_data()
-    # test_data, test_label = mnist.test.images.reshape((-1, 140, 100))
+    test_len = 500
+    test_data, test_label = test_data_set.next_batch_stupid(test_len)
+    # test_data, test_label = mnist.test.images.reshape((-1, 60, 100))
     # test_data = test_data[:, ::4, ::4]
     # test_data = test_data[:test_len]
-    # test_data = test_data.reshape((-1, n_steps, n_input))
+    test_data = test_data.reshape((-1, n_steps, n_input))
 
     # test_label = test_label[:test_len]
     print("Testing Accuracy:", \
