@@ -1,6 +1,7 @@
 from data_pipeline import Sentences
 import numpy as np
 import tensorflow as tf
+import random
 
 
 class DataSet(object):
@@ -48,8 +49,32 @@ class DataSet(object):
             except StopIteration as e:
                 self.gen = self.sentences.__iter__()
                 new_x, new_y = next(self.gen)
+
             batch_x = np.append(batch_x, new_x, axis=0)
             batch_y = np.append(batch_y, new_y, axis=0)
+
+        return batch_x, batch_y
+
+    def next_batch_stupid_shuffle(self, batch_size):
+        try:
+            batch_x, batch_y = next(self.gen)
+        except StopIteration as e:
+            self.gen = self.sentences.__iter__()
+            batch_x, batch_y = next(self.gen)
+        for i in range(batch_size - 1):
+            try:
+                new_x, new_y = next(self.gen)
+            except StopIteration as e:
+                self.gen = self.sentences.__iter__()
+                new_x, new_y = next(self.gen)
+            batch_x = np.append(batch_x, new_x, axis=0)
+            batch_y = np.append(batch_y, new_y, axis=0)
+
+        z = list(zip(batch_x, batch_y))
+        # print(z)
+        random.shuffle(z)
+
+        batch_x[:], batch_y[:] = zip(*z)
 
         return batch_x, batch_y
 

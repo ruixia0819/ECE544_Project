@@ -7,7 +7,7 @@ import numpy as np
 
 
 class Sentences(object):
-    def __init__(self, dirname, parser=None, split_line=False, split_method='', label=False, matlabel=False, w2v=False, tensor_out=False, max_length=140, stop_word=False):
+    def __init__(self, dirname, parser=None, split_line=False, split_method='', label=False, matlabel=False, w2v=False, tensor_out=False, max_length=140, stop_word=False, caseless=False, vec_length=100):
         self.dirname = dirname
         self.parser = parser
         self.split_line = split_line
@@ -18,6 +18,8 @@ class Sentences(object):
         self.tensor_out = tensor_out
         self.max_length = max_length
         self.stop_word = stop_word
+        self.caseless = caseless
+        self.vec_length = vec_length
 
         self.label_dict = {'surprise': [1, 0, 0, 0, 0, 0],
                            'sadness': [0, 1, 0, 0, 0, 0],
@@ -42,13 +44,20 @@ class Sentences(object):
             if fname == 'labels.txt':
                 continue
             # print(path)
-            for line in open(os.path.join(self.dirname, fname)):
+            for line in open(os.path.join(self.dirname, fname), errors="ignore"):
                 # print('line1')
+
+                if self.caseless:
+                    line = line[0].lower() + line[1:]
+
                 ori_line = line
                 line = line.strip('\n').split('\t')
                 # print(len(line))
-                if len(line) != 3:
-                    print(line)
+                if len(line) < 3:
+                    # print(line)
+                    continue
+                if len(line) > 3:
+                    continue
                 text = line[1]
                 raw_label = line[2].strip(':: ')
                 # print(text)
@@ -69,10 +78,10 @@ class Sentences(object):
                 if self.stop_word:
                     # text = re.sub(r'\bI\b', '', text)
                     # text = re.sub(r'\bi\b', '', text)
-                    text = re.sub(r'\ba\b', '', text)
-                    text = re.sub(r'#\w*', '', text)
-                    text = re.sub(r'\d*', '', text)
-
+                    # text = re.sub(r'\ba\b', '', text)
+                    # text = re.sub(r'#\w*', '', text)
+                    # text = re.sub(r'\d*', '', text)
+                    pass
 
                 if self.w2v:
                     text = list(map(self.__w2v__, text))
@@ -82,7 +91,7 @@ class Sentences(object):
 
                 if self.tensor_out:
                     temp = np.array(text)
-                    text = np.zeros((1, self.max_length, 100))
+                    text = np.zeros((1, self.max_length, self.vec_length))
                     text[0, :len(temp), :] = temp
                     raw_label = np.array(raw_label).reshape((1, 6))
 
