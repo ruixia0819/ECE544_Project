@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 
 
 # Parameters
-learning_rate = 0.00000001
-training_iters = 100000000
+learning_rate = 0.002
+training_iters = 10000000
 # training_iters = 1000
 batch_size = 100
 display_step = 5
@@ -18,9 +18,10 @@ display_step = 5
 # Network Parameters
 n_input = 100  # MNIST data input (img shape: 28*28)
 n_steps = 60  # timesteps
-n_hidden = 100  # hidden layer num of features
+n_hidden = 30  # hidden layer num of features
 # n_hidden = n_steps
 n_classes = 6  # MNIST total classes (0-9 digits)
+soft_layer = True
 
 # datasets
 train_data_set = DataSet(path='./data_set/train', max_length=n_steps)
@@ -59,13 +60,12 @@ def RNN(x, weights, biases):
     # Get lstm cell output
     outputs, states = rnn.rnn(lstm_cell, x, dtype=tf.float32)
 
-    ## before
+    if not soft_layer:
     # Linear activation, using rnn inner loop last output
-    return tf.matmul(outputs[-1], weights['out']) + biases['out']
-
-    ## try
-    # line_out = tf.matmul(outputs[-1], weights['out']) + biases['out']
-    # return tf.nn.softmax(line_out)
+        return tf.matmul(outputs[-1], weights['out']) + biases['out']
+    else:
+        line_out = tf.matmul(outputs[-1], weights['out']) + biases['out']
+        return tf.nn.softmax(line_out)
 
 pred = RNN(x, weights, biases)
 
@@ -140,7 +140,7 @@ with tf.Session() as sess:
 
     plt.title('Iteration time & batch size')
     plt.plot(iteration, Accuracy_, linewidth=2.5, linestyle='-')
-    plt.savefig('./fig/%s_%s_%s_%s.png' % (n_input, n_hidden, learning_rate, training_iters))
+    plt.savefig('./fig/%s_%s_%s_%s_%s.png' % (n_input, n_hidden, learning_rate, training_iters, soft_layer))
 
 print(iteration)
 print(Accuracy_)

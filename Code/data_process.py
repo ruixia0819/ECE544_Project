@@ -42,6 +42,9 @@ def data_preprocess(sentences):
         # with open('./data_set/full/full.txt', 'a') as wf:
         #     wf.write(__pre_process__(line))
 
+        if label not in label_dict:
+            continue
+
         if label_dict[label] >= 3800:
             if label == 'joy':
                 continue
@@ -145,16 +148,16 @@ if __name__ == "__main__":
     # generate label list
     #
     sentences = Sentences(dirname='./data_set/full/', label=True)
-    label_count(sentences)
+    # label_count(sentences)
 
     # check there are labels that are not expected to have
     #
-    check_abuse(sentences)
+    # check_abuse(sentences)
 
 
     # split data into train, eval and test
     #
-    data_split(sentences)
+    # data_split(sentences)
 
     sentences = Sentences(dirname='./data_set/full/', split_line=True, split_method = 'Twitter', label=False, caseless=False)
     print(find_max_length(sentences))

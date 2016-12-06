@@ -42,7 +42,12 @@ class DataSet(object):
         return np.delete(text, 0, axis=0), np.delete(label, 0, axis=0)
 
     def next_batch_stupid(self, batch_size):
-        batch_x, batch_y = next(self.gen)
+        try:
+            batch_x, batch_y = next(self.gen)
+        except StopIteration as e:
+            self.gen = self.sentences.__iter__()
+            batch_x, batch_y = next(self.gen)
+
         for i in range(batch_size - 1):
             try:
                 new_x, new_y = next(self.gen)
