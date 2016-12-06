@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # Parameters
 learning_rate = 0.002
 training_iters = 10000000
-# training_iters = 1000
+# training_iters = 10000
 batch_size = 100
 display_step = 5
 
@@ -25,7 +25,7 @@ soft_layer = True
 
 # datasets
 train_data_set = DataSet(path='./data_set/train', max_length=n_steps)
-# eval_data_set = DataSet(path='./data_set/eval', max_length=n_steps)
+eval_data_set = DataSet(path='./data_set/eval', max_length=n_steps)
 test_data_set = DataSet(path='./data_set/test', max_length=n_steps)
 
 # tf Graph input
@@ -83,6 +83,7 @@ init = tf.initialize_all_variables()
 # Launch the graph
 
 Accuracy_=[]
+CV_Accuracy = []
 iteration=[]
 
 
@@ -96,8 +97,10 @@ with tf.Session() as sess:
 
 
     print('start')
+
     while step * batch_size < training_iters:
         batch_x, batch_y = train_data_set.next_batch_stupid(batch_size)
+        cv_x, cv_y = eval_data_set.next_batch_stupid(batch_size)
         # batch_x, batch_y = train_data_set.next_batch_stupid_shuffle(batch_size)
         # batch_x, batch_y = train_data_set.next_batch(batch_size)
 
@@ -113,14 +116,16 @@ with tf.Session() as sess:
             # Calculate batch accuracy
             acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
             # Calculate batch loss
+            cv_acc = sess.run(accuracy, feed_dict={x: cv_x, y: cv_y})
 
             Accuracy_.append(acc)
+            CV_Accuracy.append(cv_acc)
             iteration.append(step)
 
             loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y})
             print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
                   "{:.6f}".format(loss) + ", Training Accuracy= " + \
-                  "{:.5f}".format(acc))
+                  "{:.5f}".format(acc) + ", Cross_validation_Accuracy= " + "{:.5f}".format(cv_acc))
         step += 1
     print("Optimization Finished!")
 
@@ -128,7 +133,7 @@ with tf.Session() as sess:
     # test_data_set = DataSet(path='./data_set/test')
 
     # Calculate accuracy for 128 mnist test images
-    test_len = 1000
+    test_len = 100
     test_data, test_label = test_data_set.next_batch_stupid_shuffle(test_len)
     # test_data, test_label = mnist.test.images.reshape((-1, 60, 100))
     # test_data = test_data[:, ::4, ::4]
@@ -139,7 +144,9 @@ with tf.Session() as sess:
     print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: test_data, y: test_label}))
 
     plt.title('Iteration time & batch size')
-    plt.plot(iteration, Accuracy_, linewidth=2.5, linestyle='-')
+    plt.plot(iteration, Accuracy_, linewidth=2.5, linestyle='-', label='train accuracy')
+    plt.plot(iteration, CV_Accuracy, color="r", linewidth=2.5, linestyle='-', label='cross_validation accuracy')
+    plt.legend()
     plt.savefig('./fig/%s_%s_%s_%s_%s.png' % (n_input, n_hidden, learning_rate, training_iters, soft_layer))
 
 print(iteration)
