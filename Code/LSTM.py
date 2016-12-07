@@ -21,7 +21,7 @@ n_steps = 60  # timesteps
 n_hidden = 30  # hidden layer num of features
 # n_hidden = n_steps
 n_classes = 6  # MNIST total classes (0-9 digits)
-soft_layer = True
+soft_layer = False
 
 # datasets
 train_data_set = DataSet(path='./data_set/train', max_length=n_steps)
