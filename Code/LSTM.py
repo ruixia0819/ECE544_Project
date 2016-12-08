@@ -5,12 +5,13 @@ from tensorflow.python.ops import rnn, rnn_cell
 import numpy as np
 from dataset import DataSet
 import matplotlib.pyplot as plt
+from plot_confusion_matrix import plot_confusion_matrix
 
 
 
 # Parameters
 learning_rate = 0.002
-training_iters = 10000000
+training_iters = 1900000
 # training_iters = 10000
 batch_size = 100
 display_step = 5
@@ -147,8 +148,34 @@ with tf.Session() as sess:
     plt.plot(iteration, Accuracy_, linewidth=2.5, linestyle='-', label='train accuracy')
     plt.plot(iteration, CV_Accuracy, color="r", linewidth=2.5, linestyle='-', label='cross_validation accuracy')
     plt.legend()
+
     plt.savefig('./fig/%s_%s_%s_%s_%s.png' % (n_input, n_hidden, learning_rate, training_iters, soft_layer))
 
 print(iteration)
 print(Accuracy_)
+plt.show()
+
+X_train, Y_train=train_data_set.all_data()
+X_test, Y_test=test_data_set.all_data()
+
+confusion_matrix = tf.contrib.metrics.confusion_matrix(tf.argmax(pred, 1), tf.argmax(y,1))
+cm1 = sess.run(confusion_matrix , feed_dict={x: X_train, y: Y_train})
+cm2= sess.run(confusion_matrix , feed_dict={x: X_test, y: Y_test})
+
+index = ['surprise', 'sadness', 'joy', 'disgust', 'fear', 'anger']
+# 'surprise': [1, 0, 0, 0, 0, 0],
+#                            'sadness': [0, 1, 0, 0, 0, 0],
+#                            'joy': [0, 0, 1, 0, 0, 0],
+#                            'disgust': [0, 0, 0, 1, 0, 0],
+#                            'fear': [0, 0, 0, 0, 1, 0],
+#                            'anger': [0, 0, 0, 0, 0, 1]}
+np.set_printoptions(precision=2)
+plt.figure()
+plot_confusion_matrix(cm1, index, title='Confusion matrix for Training Data')
+plt.savefig('cm_train')
+plt.show()
+
+plt.figure()
+plot_confusion_matrix(cm2, index, title='Confusion matrix for Testing Data')
+plt.savefig('cm_test')
 plt.show()
