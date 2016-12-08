@@ -11,8 +11,8 @@ from plot_confusion_matrix import plot_confusion_matrix
 
 # Parameters
 learning_rate = 0.002
-training_iters = 1900000
-# training_iters = 10000
+training_iters = 1800000
+#training_iters = 10000
 batch_size = 100
 display_step = 5
 
@@ -41,6 +41,7 @@ biases = {
     'out': tf.Variable(tf.random_normal([n_classes]))
 }
 
+outputs = []
 
 def RNN(x, weights, biases):
 
@@ -151,31 +152,39 @@ with tf.Session() as sess:
 
     plt.savefig('./fig/%s_%s_%s_%s_%s.png' % (n_input, n_hidden, learning_rate, training_iters, soft_layer))
 
+    confusion_matrix = tf.contrib.metrics.confusion_matrix(tf.argmax(pred, 1), tf.argmax(y, 1))
+    cm2 = sess.run(confusion_matrix, feed_dict={x: test_data, y: test_label})
+
+    index = ['surprise', 'sadness', 'joy', 'disgust', 'fear', 'anger']
+    # 'surprise': [1, 0, 0, 0, 0, 0],
+    #                            'sadness': [0, 1, 0, 0, 0, 0],
+    #                            'joy': [0, 0, 1, 0, 0, 0],
+    #                            'disgust': [0, 0, 0, 1, 0, 0],
+    #                            'fear': [0, 0, 0, 0, 1, 0],
+    #                            'anger': [0, 0, 0, 0, 0, 1]}
+    np.set_printoptions(precision=2)
+    # plt.figure()
+    # plot_confusion_matrix(cm1, index, title='Confusion matrix for Training Data')
+    # plt.savefig('cm_train')
+
+
+    plt.figure()
+    plot_confusion_matrix(cm2, index, title='Confusion matrix for Testing Data')
+    plt.savefig('./fig/cm_test')
+
+
+
 print(iteration)
 print(Accuracy_)
-plt.show()
+#plt.show()
 
-X_train, Y_train=train_data_set.all_data()
-X_test, Y_test=test_data_set.all_data()
+#X_train, Y_train=train_data_set.next_batch_stupid(100)
+# X_test, Y_test=test_data_set.all_data()
+# X_test, Y_test=test_data_set.next_batch_stupid(100)
 
-confusion_matrix = tf.contrib.metrics.confusion_matrix(tf.argmax(pred, 1), tf.argmax(y,1))
-cm1 = sess.run(confusion_matrix , feed_dict={x: X_train, y: Y_train})
-cm2= sess.run(confusion_matrix , feed_dict={x: X_test, y: Y_test})
+# confusion_matrix = tf.contrib.metrics.confusion_matrix(tf.argmax(pred, 1), tf.argmax(y,1))
+#cm1 = sess.run(confusion_matrix , feed_dict={x: X_train, y: Y_train})
+# cm2= sess.run(confusion_matrix , feed_dict={x: X_test, y: Y_test})
 
-index = ['surprise', 'sadness', 'joy', 'disgust', 'fear', 'anger']
-# 'surprise': [1, 0, 0, 0, 0, 0],
-#                            'sadness': [0, 1, 0, 0, 0, 0],
-#                            'joy': [0, 0, 1, 0, 0, 0],
-#                            'disgust': [0, 0, 0, 1, 0, 0],
-#                            'fear': [0, 0, 0, 0, 1, 0],
-#                            'anger': [0, 0, 0, 0, 0, 1]}
-np.set_printoptions(precision=2)
-plt.figure()
-plot_confusion_matrix(cm1, index, title='Confusion matrix for Training Data')
-plt.savefig('cm_train')
-plt.show()
 
-plt.figure()
-plot_confusion_matrix(cm2, index, title='Confusion matrix for Testing Data')
-plt.savefig('cm_test')
-plt.show()
+
